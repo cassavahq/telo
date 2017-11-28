@@ -28,7 +28,7 @@
         <q-list-header>Home</q-list-header>
         <q-item link to="/hello">
           <q-item-side icon="school" />
-          <q-item-main label="Docs" sublabel="" />
+          <q-item-main label="Hello" sublabel="" />
         </q-item>
         <q-item @click="launch('#')">
           <q-item-side icon="record_voice_over" />
