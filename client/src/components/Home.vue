@@ -6,7 +6,7 @@
   >
     <q-toolbar slot="header">
       <q-toolbar-title>
-        Quasar App
+        Telo Started
         <div slot="subtitle">Running on Quasar v{{$q.version}}</div>
       </q-toolbar-title>
       <q-btn
