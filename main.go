@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -39,5 +40,5 @@ func main() {
 	e.GET("/", echo.WrapHandler(staticHandler))
 	e.GET("/statics/*", echo.WrapHandler(staticHandler))
 		
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))
 }

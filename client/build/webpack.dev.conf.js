@@ -9,7 +9,7 @@ var
 
 // add hot-reload related code to entry chunks
 Object.keys(baseWebpackConfig.entry).forEach(function (name) {
-  baseWebpackConfig.entry[name] = ['./build/hot-reload.js', baseWebpackConfig.entry[name]]
+  baseWebpackConfig.entry[name] = ['./client/build/hot-reload.js', baseWebpackConfig.entry[name]]
 })
 
 module.exports = merge(baseWebpackConfig, {
@@ -30,7 +30,7 @@ module.exports = merge(baseWebpackConfig, {
     new webpack.NoEmitOnErrorsPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: 'src/index.html',
+      template: 'client/src/index.html',
       inject: true
     }),
     new FriendlyErrorsPlugin({

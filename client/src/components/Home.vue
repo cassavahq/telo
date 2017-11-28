@@ -25,10 +25,22 @@
       -->
 
       <q-list no-border link inset-delimiter>
-        <q-list-header>Hello</q-list-header>
-        <q-item link to="/">
-          <q-item-side icon="home" />
-          <q-item-main label="Home" sublabel="" />
+        <q-list-header>Home</q-list-header>
+        <q-item link to="/hello">
+          <q-item-side icon="school" />
+          <q-item-main label="Docs" sublabel="" />
+        </q-item>
+        <q-item @click="launch('#')">
+          <q-item-side icon="record_voice_over" />
+          <q-item-main label="Forum" sublabel="forum.quasar-framework.org" />
+        </q-item>
+        <q-item @click="launch('#')">
+          <q-item-side icon="chat" />
+          <q-item-main label="Gitter Channel" sublabel="Quasar Lobby" />
+        </q-item>
+        <q-item @click="launch('#')">
+          <q-item-side icon="rss feed" />
+          <q-item-main label="Twitter" sublabel="@quasarframework" />
         </q-item>
       </q-list>
     </div>
