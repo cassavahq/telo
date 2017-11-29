@@ -12,6 +12,7 @@ type Config struct {
 	Port      int64
 	JWTSecret string
 	LogConfig LoggingConfig
+	ServerName string
 }
 
 // LoadConfig loads the config from a file if specified, otherwise from the environment

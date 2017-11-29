@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"log"
-	
-		"os"
 
 	"github.com/cassavahq/telo/api"
 	"github.com/cassavahq/telo/conf"
@@ -37,8 +35,5 @@ func run(cmd *cobra.Command, args []string) {
 
 	server := api.NewAPI(logger, config)
 	logger.Infof("Starting up server on port %d", config.Port)
-	if err := server.Start(); err != nil {
-		logger.WithError(err).Error("Error while running server")
-		os.Exit(1)
-	}
+	server.Start()
 }

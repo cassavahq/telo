@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 	"os/signal"
+	"syscall"
 	"context"
 	//Statik
 	_ "github.com/cassavahq/telo/statik"
@@ -25,8 +26,10 @@ type API struct {
 	log    *logrus.Entry
 	config *conf.Config
 	echo   *echo.Echo
+	sigFunc     func(os.Signal)
 }
 
+//JWTClaims to add custom claims data
 type JWTClaims struct {
 	jwt.StandardClaims
 	UserID string   `json:"user_id"`
@@ -34,6 +37,7 @@ type JWTClaims struct {
 	Groups []string `json:"groups"`
 }
 
+//Valid to check validity token
 func (c JWTClaims) Valid() error {
 	if err := c.StandardClaims.Valid(); err != nil {
 		return err
@@ -46,32 +50,60 @@ func (c JWTClaims) Valid() error {
 	return nil
 }
 
-// Start will start the API on the specified port
-func (api *API) Start() (err error) {
+func (a *API) waitForSignals() os.Signal {
+	sink := make(chan os.Signal, 1)
+	defer close(sink)
+	// wait for signal
+	signal.Notify(sink, signals...)
+	// reset the watched signals
+	defer signal.Ignore(signals...)
+
+	return <-sink
+}
+
+func (a *API) OnSignalReceived(fn func(s os.Signal)) {
+	a.sigFunc = fn
+}
+
+//Start will start the API on the specified port
+func (api *API) Start(){
 
 	go func() {
-		if err = api.echo.Start(fmt.Sprintf(":%d", api.config.Port)); err != nil {
-			api.echo.Logger.Info("shutting down the server")
-		}
+		api.log.Fatal(api.echo.Start(fmt.Sprintf(":%d", api.config.Port)))
 	}()
+
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 10 seconds.
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	api.Stop()
-	return err
+	// main loop
+	for {
+		// wait for supported signal
+		sig := api.waitForSignals()
+		api.log.Info("STOPPED")
+		// call it once received
+		if api.sigFunc != nil {
+			api.sigFunc(sig)
+		}
+		// if it's sighub and rotate the log file when set
+		if sig == syscall.SIGHUP {
+			api.log.Debug("SIGHUP")
+			// TODO: add log rotator
+			continue
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := api.echo.Shutdown(ctx); err != nil {
+			api.log.Fatal(err)
+		}
+		break
+	}
 }
 
 // Stop will shutdown the engine internally
-func (api *API) Stop() (err error) {
-
+func (api *API) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err = api.echo.Shutdown(ctx); err != nil {
-		api.echo.Logger.Fatal(err)
-	}
-	return err
+	api.echo.Logger.Fatal(api.echo.Shutdown(ctx))
 }
 
 // NewAPI will create an api instance that is ready to start
@@ -87,6 +119,14 @@ func NewAPI(log *logrus.Entry, config *conf.Config) *API {
 		ContextKey:    tokenKey,
 		Claims:        &JWTClaims{},
 		SigningKey:    []byte(config.JWTSecret),
+	})
+
+	// closed pipeline upon received close signal
+	api.OnSignalReceived(func(s os.Signal) {
+		api.log.Debug("signal received")
+		if s != syscall.SIGHUP {
+			// TODO: add close signal 
+		}
 	})
 
 	// add the endpoints
@@ -118,11 +158,12 @@ func NewAPI(log *logrus.Entry, config *conf.Config) *API {
 	return api
 }
 
+// Info Handler
 func (api *API) Info(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"version":     "testing",
 		"description": "a boiler plate project",
-		"name":        "seltzer",
+		"name":        "telo goreng enakkk",
 	})
 }
 
@@ -200,6 +241,7 @@ func (api *API) setupRequest(f echo.HandlerFunc) echo.HandlerFunc {
 			"path":       req.URL.Path,
 			"request_id": uuid.NewRandom().String(),
 		})
+		
 		ctx.Set(loggerKey, logger)
 
 		startTime := time.Now()
