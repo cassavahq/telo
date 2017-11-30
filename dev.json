@@ -3,5 +3,7 @@
     "level": "debug"
   },
   "port": 1000,
-  "JWTSecret":"secret"
+  "server_name":"localhost",
+  "jwt_secret":"secret",
+  "body_limit":"2M"
 }

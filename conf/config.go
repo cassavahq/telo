@@ -9,10 +9,11 @@ import (
 
 // Config the application's configuration
 type Config struct {
-	Port      int64
-	JWTSecret string
-	LogConfig LoggingConfig
-	ServerName string
+	Port      int64 `json:"port"`
+	JwtSecret string `json:"jwt_secret"`
+	LogConfig LoggingConfig `json:"log_config"`
+	ServerName string `json:"server_name"`
+	BodyLimit	string `json:"body_limit"`
 }
 
 // LoadConfig loads the config from a file if specified, otherwise from the environment

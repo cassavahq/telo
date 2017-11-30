@@ -50,7 +50,7 @@ func (c JWTClaims) Valid() error {
 	return nil
 }
 
-func (a *API) waitForSignals() os.Signal {
+func (api *API) waitForSignals() os.Signal {
 	sink := make(chan os.Signal, 1)
 	defer close(sink)
 	// wait for signal
@@ -61,8 +61,9 @@ func (a *API) waitForSignals() os.Signal {
 	return <-sink
 }
 
-func (a *API) OnSignalReceived(fn func(s os.Signal)) {
-	a.sigFunc = fn
+// OnSignalReceived added 
+func (api *API) OnSignalReceived(fn func(s os.Signal)) {
+	api.sigFunc = fn
 }
 
 //Start will start the API on the specified port
@@ -78,7 +79,6 @@ func (api *API) Start(){
 	for {
 		// wait for supported signal
 		sig := api.waitForSignals()
-		api.log.Info("STOPPED")
 		// call it once received
 		if api.sigFunc != nil {
 			api.sigFunc(sig)
@@ -95,6 +95,7 @@ func (api *API) Start(){
 		if err := api.echo.Shutdown(ctx); err != nil {
 			api.log.Fatal(err)
 		}
+		api.log.Infof("STOPPED with %s signal", sig)
 		break
 	}
 }
@@ -118,7 +119,7 @@ func NewAPI(log *logrus.Entry, config *conf.Config) *API {
 		SigningMethod: jwt.SigningMethodHS256.Name,
 		ContextKey:    tokenKey,
 		Claims:        &JWTClaims{},
-		SigningKey:    []byte(config.JWTSecret),
+		SigningKey:    []byte(config.JwtSecret),
 	})
 
 	// closed pipeline upon received close signal
@@ -135,6 +136,13 @@ func NewAPI(log *logrus.Entry, config *conf.Config) *API {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "header:X-XSRF-TOKEN",
+	}))
+	e.Use(middleware.BodyLimit(api.config.BodyLimit))
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
+	}))
 
 	statikFS, err := fs.New()
 	if err != nil {
@@ -203,7 +211,7 @@ func (api *API) generateToken(ctx echo.Context) error {
 	claims.ExpiresAt = time.Now().Add(time.Minute * 60).Unix()
 
 	// create a token with our secret key
-	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(api.config.JWTSecret))
+	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(api.config.JwtSecret))
 	if err != nil {
 		api.log.WithError(err).Warn("Failed to create a token")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create a token")
