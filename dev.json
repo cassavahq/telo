@@ -2,7 +2,7 @@
   "log_config": {
     "level": "debug"
   },
-  "port": 1000,
+  "port": 8889,
   "server_name":"localhost",
   "jwt_secret":"secret",
   "body_limit":"2M"

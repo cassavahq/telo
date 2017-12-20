@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "node client/build/script.clean.js",
     "dev": "node client/build/script.dev.js",
-    "build": "node client/build/script.build.js && statik -src=client/dist",
+    "build": "node client/build/script.build.js && statik -f -src=client/dist",
     "lint": "eslint --ext .js,.vue client/src",
     "postinstall" : "node-prune"
   },
