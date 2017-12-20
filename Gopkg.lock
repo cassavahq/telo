@@ -98,12 +98,6 @@
   version = "v0.1.1"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/sandalwing/echo-logrusmiddleware"
-  packages = ["."]
-  revision = "1d7700fcf2d3785a9fa77dc1a89a60df4789cdb2"
-
-[[projects]]
   name = "github.com/spf13/afero"
   packages = [".","mem"]
   revision = "8d919cbe7e2627e417f3e45c3c0e489a5b7e2536"
@@ -184,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "87262a14f11875beb251b1d4fb32dbb0549296a265f196a94e1085ed943c37f2"
+  inputs-digest = "92fa3bc6afcecf7b621353110c05ecfc8c3fcec4bcd59b779cbfa301998fe67a"
   solver-name = "gps-cdcl"
   solver-version = 1

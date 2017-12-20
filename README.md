@@ -12,6 +12,8 @@
 
 - Execute command `dep ensure`
 
-- Execute `yarn` and `go generate`
+- Execute `yarn` and `go generate` (execure go generate if you want to update statik files)
+
+- Running application with `go install` after this run `telo -c dev.json` -> make sure $GOPATH/bin already set in environtment variable
 
 [DEMO SITE](http://cassavahq.com)
